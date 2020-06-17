@@ -1,0 +1,364 @@
+#!/bin/bash
+#
+#----------------------------------------------------------------------------------------------#
+# Autor:    Claudio Alves Jr
+#           claudiojunior.net@gmail.com
+# 
+# Data:     2019-03-19
+# Objetivo: Script inicial para a instalacao dos componentes essenciais e necessarios
+#           para o uso da ferramenta Jenkins.
+# 
+#----------------------------------------------------------------------------------------------#
+#
+echo '-------------------------------------------------------------'
+echo '--- Definindo as variaveis do script'
+echo '-------------------------------------------------------------'
+echo ' Definindo as variaveis do script'
+echo ' Variavel LOCAL_SH define o local de execucao do script' 
+#
+#
+LOCAL_SH=$(pwd)
+#
+# exemplo: sh ./install-jenkins.sh --update
+# exemplo: sh ./install-jenkins.sh --u
+UPDATE_MODE=0
+# 
+# exemplo: sh ./install-jenkins.sh --tools-essential
+# exemplo: sh ./install-jenkins.sh --t
+TOOLS_ESSENCIAL=0
+#
+#
+# exemplo: sh ./install-jenkins.sh --remove-packages
+# exemplo: sh ./install-jenkins.sh -r
+REMOVE_PACKAGES=0
+# 
+# 
+# exemplo: sh ./install-jenkins.sh --config
+# exemplo: sh ./install-jenkins.sh -c
+CONFIG_INITIAL=0
+# 
+# Tratamento das opcoes de linha de comando
+while test -n "$1"
+do
+	case "$1" in
+		-u | --update            ) UPDATE_MODE=1      ;;
+                -t | --tools-essential   ) TOOLS_ESSENCIAL=1  ;;
+                -r | --remove-packages   ) REMOVE_PACKAGES=1  ;;
+                -c | --config            ) CONFIG_INITIAL=1   ;;
+	esac
+
+	# Opcao $1 ja processada, a fila deve pegar a proxima opcao (shift)
+	shift
+done
+#
+#
+echo
+echo
+echo '-------------------------------------------------------------'
+echo '--- Componentes essenciais do linux - Ubuntu 18.10'
+echo '-------------------------------------------------------------'
+echo
+###  Update da lista do apt-get 
+if test "$UPDATE_MODE" -eq 1
+then
+	echo 'sudo apt-get update'
+	sudo apt-get update
+fi
+echo
+###  Update das ferramentas essenciais para a instalacao
+if test "$TOOLS_ESSENCIAL" -eq 1
+then
+	echo 'sudo apt-get install -y git'
+	sudo apt-get install -y git
+	echo 'sudo apt-get install -y curl'
+	sudo apt-get install -y  curl
+	echo 'sudo apt-get install -y wget'
+	sudo apt-get install -y wget
+	echo 'sudo apt-get install net-tools'
+	sudo apt-get install -y net-tools
+	echo 'sudo apt-get autoremove -y'
+	sudo apt-get autoremove -y
+fi
+echo
+echo 
+echo '--------------------------------------------------------------'
+echo '--- Diretorios necessarios para uso de download e instalacao' 
+echo '--------------------------------------------------------------'
+echo '1. Removendo o diretorio definido para a ferramenta jenkins'
+echo '   rm -dfR '${HOME}'/tools/java'
+echo '   rm -dfR '${HOME}'/tools/ant'
+echo '   rm -dfR '${HOME}'/tools/maven'
+echo '   rm -dfR '${HOME}'/tools/gradle'
+echo '   rm -dfR '${HOME}'/tools/jenkins/downloads'
+echo '   rm -dfR '${HOME}'/tools/jenkins/log'
+echo '   rm -fR  '${HOME}'/tools/jenkins/*.*'
+#
+# --------------------------  COMANDOS  --------------------------- # 
+#
+#rm -dfR ${HOME}/tools/jenkins
+rm -dfR ${HOME}/tools/java
+rm -dfR ${HOME}/tools/ant
+rm -dfR ${HOME}/tools/maven
+rm -dfR ${HOME}/tools/gradle
+rm -dfR ${HOME}/tools/jenkins/downloads
+rm -dfR ${HOME}/tools/jenkins/log
+rm -fR  ${HOME}/tools/jenkins/*.*
+if test "$CONFIG_INITIAL" -eq 0
+then
+    echo '*** Removendo o diretorio de configuracao do JENKINS'
+    echo 'rm -dfR '${HOME}'/tools/jenkins/config'
+    rm -dfR ${HOME}/tools/jenkins/config
+fi
+echo 
+#
+# ----------------------------------------------------------------- #
+#
+echo '2. Criacao dos diretorios necessarios'
+echo '   mkdir -p '${HOME}'/tools/java'
+echo '   mkdir -p '${HOME}'/tools/java/downloads'
+echo '   mkdir -p '${HOME}'/tools/ant'
+echo '   mkdir -p '${HOME}'/tools/ant/downloads'
+echo '   mkdir -p '${HOME}'/tools/maven'
+echo '   mkdir -p '${HOME}'/tools/maven/downloads'
+echo '   mkdir -p '${HOME}'/tools/gradle'
+echo '   mkdir -p '${HOME}'/tools/gradle/downloads'
+echo '   mkdir -p '${HOME}'/tools/jenkins'
+echo '   mkdir -p '${HOME}'/tools/jenkins/downloads'
+echo '   mkdir -p '${HOME}'/tools/jenkins/log'
+echo 
+#
+# --------------------------  COMANDOS  --------------------------- # 
+#
+mkdir -p ${HOME}/tools/java
+mkdir -p ${HOME}/tools/java/downloads
+mkdir -p ${HOME}/tools/ant
+mkdir -p ${HOME}/tools/ant/downloads
+mkdir -p ${HOME}/tools/maven
+mkdir -p ${HOME}/tools/maven/downloads
+mkdir -p ${HOME}/tools/gradle
+mkdir -p ${HOME}/tools/gradle/downloads
+mkdir -p ${HOME}/tools/jenkins
+mkdir -p ${HOME}/tools/jenkins/downloads
+mkdir -p ${HOME}/tools/jenkins/log
+if test "$CONFIG_INITIAL" -eq 0
+then
+    echo '*** Criando o diretorio de configuracao do JENKINS'
+    echo '   mkdir -p '${HOME}'/tools/jenkins/config'
+    mkdir -p ${HOME}/tools/jenkins/config
+fi
+echo
+#
+# ----------------------------------------------------------------- #
+#
+echo '--------------------------------------------------------------'
+echo '--- Efetuando o download dos arquivos necessarios' 
+echo '--------------------------------------------------------------'
+echo '1. Usando o comando wget para o download do arquivo - jenkins.war ~/73,75M'
+echo '   cd '${HOME}'/tools/jenkins/downloads'
+echo '   wget http://mirrors.jenkins.io/war-stable/latest/jenkins.war ./jenkins.war'
+echo '   cp '${HOME}'/tools/jenkins/downloads/jenkins.war ./../jenkins.war'
+echo 
+#
+# ----------------------------- COMANDOS -------------------------- #
+#
+cd ${HOME}/tools/jenkins/downloads
+wget http://mirrors.jenkins.io/war-stable/latest/jenkins.war
+cp ${HOME}/tools/jenkins/downloads/jenkins.war ./../jenkins.war
+echo 
+#
+# ----------------------------------------------------------------- #
+#
+echo '2. Usando o comando wget para o download do arquivo - java.tar.gz ~/182,93M'
+echo '   cd '${HOME}'/tools/java/downloads'
+echo '   wget --no-cookies --no-check-certificate --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" "https://download.oracle.com/otn-pub/java/jdk/8u201-b09/42970487e3af4f5aa5bca3f542482c60/jdk-8u201-linux-x64.tar.gz"'
+echo '   tar -xvzf jdk-8u201-linux-x64.tar.gz'
+echo '   mv ./jdk1.8.0_201/ ./../jdk1.8.0_201'
+echo '   export JAVA_HOME=${HOME}/tools/java/jdk1.8.0_201'
+echo '   export PATH=$JAVA_HOME/bin:$PATH'
+echo '   java -version'
+echo
+#
+# ----------------------------- COMANDOS -------------------------- #
+#
+cd ${HOME}/tools/java/downloads
+wget --no-cookies --no-check-certificate --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" "https://download.oracle.com/otn-pub/java/jdk/8u201-b09/42970487e3af4f5aa5bca3f542482c60/jdk-8u201-linux-x64.tar.gz"
+echo '   Extraindo o arquivo SDK do JAVA 8'
+tar -xvzf jdk-8u201-linux-x64.tar.gz
+echo
+echo 
+mv ./jdk1.8.0_201/ ./../jdk1.8.0_201
+export JAVA_HOME=${HOME}/tools/java/jdk1.8.0_201
+export PATH=$JAVA_HOME/bin:$PATH
+echo
+echo
+java -version
+echo 
+#
+# ----------------------------------------------------------------- #
+#
+echo 
+echo '3. Usando o comando wget para o download do arquivo - ant.tar.gz ~/6,1M'
+echo '   cd '${HOME}'/tools/ant/downloads'
+echo '   wget --no-cookies --no-check-certificate http://ftp.unicamp.br/pub/apache//ant/binaries/apache-ant-1.10.5-bin.tar.gz'
+echo '   tar -xvzf apache-ant-1.10.5-bin.tar.gz'
+echo '   mv ./apache-ant-1.10.5 ./../apache-ant-1.10.5'
+echo '   export ANT_HOME=${HOME}/tools/ant/apache-ant-1.10.5'
+echo '   export PATH=$ANT_HOME/bin:$PATH'
+echo '   ant -version'
+echo
+#
+# ----------------------------- COMANDOS -------------------------- #
+#
+echo 
+cd ${HOME}/tools/ant/downloads
+wget  --no-cookies --no-check-certificate 'http://ftp.unicamp.br/pub/apache//ant/binaries/apache-ant-1.10.5-bin.tar.gz'
+tar -xvzf apache-ant-1.10.5-bin.tar.gz
+mv ./apache-ant-1.10.5 ./../apache-ant-1.10.5
+export ANT_HOME=${HOME}/tools/ant/apache-ant-1.10.5
+export PATH=$ANT_HOME/bin:$PATH
+echo
+echo
+ant -version
+echo
+#
+# ----------------------------------------------------------------- #
+#
+echo 
+echo '4. Usando o comando wget para o download do arquivo - maven.tar.gz ~/10M'
+echo '   cd '${HOME}'/tools/maven/downloads'
+echo '   wget --no-cookies --no-check-certificate http://mirror.nbtelecom.com.br/apache/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz'
+echo '   tar -xvzf apache-maven-3.6.0-bin.tar.gz'
+echo '   mv ./apache-maven-3.6.0 ./../apache-maven-3.6.0'
+echo '   export MVN_HOME=${HOME}/tools/maven/apache-maven-3.6.0'
+echo '   export PATH=$MVN_HOME/bin:$PATH'
+echo '   mvn --version'
+echo  
+#
+# ----------------------------- COMANDOS -------------------------- #
+#
+echo 
+cd ${HOME}/tools/maven/downloads
+wget --no-cookies --no-check-certificate http://mirror.nbtelecom.com.br/apache/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz
+tar -xvzf apache-maven-3.6.0-bin.tar.gz
+mv ./apache-maven-3.6.0 ./../apache-maven-3.6.0
+export MVN_HOME=${HOME}/tools/maven/apache-maven-3.6.0
+export PATH=$MVN_HOME/bin:$PATH
+echo
+echo
+mvn --version
+echo
+#
+# ----------------------------------------------------------------- #
+#
+echo
+echo '5. Usando o comando wget para o download do arquivo - gradle-5.2.1-bin.zip ~/87,4M'
+echo '   cd '${HOME}'/tools/gradle/downloads'
+echo '   wget --no-cookies --no-check-certificate https://downloads.gradle.org/distributions/gradle-5.2.1-bin.zip'
+echo '   unzip gradle-5.2.1-bin.zip'
+echo '   mv ./gradle-5.2.1 ./../gradle-5.2.1'
+echo '   export GRADLE_HOME=${HOME}/tools/gradle/gradle-5.2.1'
+echo '   export PATH=$GRADLE_HOME/bin:$PATH'
+echo '   gradle --version'
+echo
+#
+# ----------------------------- COMANDOS -------------------------- #
+#
+echo
+cd ${HOME}/tools/gradle/downloads
+wget --no-cookies --no-check-certificate https://downloads.gradle.org/distributions/gradle-5.2.1-bin.zip
+unzip gradle-5.2.1-bin.zip
+mv ./gradle-5.2.1 ./../gradle-5.2.1
+export GRADLE_HOME=${HOME}/tools/gradle/gradle-5.2.1
+export PATH=$GRADLE_HOME/bin:$PATH
+echo
+echo
+gradle --version
+echo 
+#
+# ----------------------------------------------------------------- #
+#
+echo
+echo 'Copiando o arquivo de Start do jenkins - start-jenkins.sh'
+echo 'Local:'
+pwd
+echo 
+cp $LOCAL_SH/start-jenkins.sh ${HOME}/tools/jenkins/start-jenkins.sh
+echo 'Configurar o arquivo /etc/hostname'
+echo '192.168.10.2     jenkinsci.orbenet.com'
+#
+# ----------------------------------------------------------------- #
+#
+echo
+echo '--------------------------------------------------------------'
+echo '--- Permissoes necessarios para a execucao do Jenkins' 
+echo '--------------------------------------------------------------'
+echo '1. Definindo as permissoes para o usuario - jenkins'
+echo '   chmod 775 -R '${HOME}'/tools/**'
+echo '   chmod 775 -R '${HOME}'/tools/jenkins/**'
+echo '   chmod 775 -R '${HOME}'/tools/java/**'
+echo '   chmod 775 -R '${HOME}'/tools/ant/**'
+echo '   chmod 775 -R '${HOME}'/tools/maven/**'
+echo '   chmod 775 -R '${HOME}'/tools/gradle/**'
+echo 
+echo '   chown -R -H jenkins:jenkins '${HOME}'/tools'
+echo '   chown -R -H jenkins:jenkins '${HOME}'/tools/jenkins'
+echo '   chown -R -H jenkins:jenkins '${HOME}'/tools/java'
+echo '   chown -R -H jenkins:jenkins '${HOME}'/tools/ant'
+echo '   chown -R -H jenkins:jenkins '${HOME}'/tools/maven'
+echo '   chown -R -H jenkins:jenkins '${HOME}'/tools/gradle'
+echo 
+echo '   chmod u+x '${HOME}'/tools/jenkins/jenkins.war'
+echo '   chmod u+x -R '${HOME}'/tools/java/jdk1.8.0_201/**'
+echo 
+#
+# ----------------------------- COMANDOS -------------------------- #
+#
+sudo chmod 775 -R ${HOME}/tools/**
+sudo chmod 775 -R ${HOME}/tools/jenkins/**
+sudo chmod 775 -R ${HOME}/tools/java/**
+sudo chmod 775 -R ${HOME}/tools/ant/**
+sudo chmod 775 -R ${HOME}/tools/maven/**
+sudo chmod 775 -R ${HOME}/tools/gradle/**
+echo 
+sudo chown -R -H jenkins:jenkins ${HOME}/tools
+sudo chown -R -H jenkins:jenkins ${HOME}/tools/jenkins
+sudo chown -R -H jenkins:jenkins ${HOME}/tools/java
+sudo chown -R -H jenkins:jenkins ${HOME}/tools/ant
+sudo chown -R -H jenkins:jenkins ${HOME}/tools/maven
+sudo chown -R -H jenkins:jenkins ${HOME}/tools/gradle
+echo
+sudo chmod u+x ${HOME}/tools/jenkins/jenkins.war
+sudo chmod u+x ${HOME}/tools/jenkins/*.sh
+sudo chmod u+x -R ${HOME}/tools/java/jdk1.8.0_201/**
+echo
+#
+#------------------------------------------------------------------ #
+#
+echo
+echo 'Verificando a remocao dos arquivos de download'
+echo
+#
+#--------------------------- COMANDOS ------------------------------#
+#
+echo
+if test "$REMOVE_PACKAGES" -eq 1
+then
+     sudo rm -dfR ${HOME}/tools/ant/downloads
+     sudo rm -dfR ${HOME}/tools/gradle/downloads
+     sudo rm -dfR ${HOME}/tools/java/downloads
+     sudo rm -dfR ${HOME}/tools/jenkins/downloads
+     sudo rm -dfR ${HOME}/tools/maven/downloads
+fi
+echo
+#
+# ----------------------------------------------------------------- #
+#
+echo '--------------------------------------------------------------------------------'
+echo '***     INSTALACAO DA FERRAMENTA JENKINS FINALIZADA COM  SUCESSO!!!          ***' 
+echo '***                                                                          ***'
+echo '***     Para iniciar o uso da ferramenta JENKINS execute o script            ***'
+echo '***     chamado start-jenkins.sh no seguinte local: '${HOME}'/tools/jenkins  ***'
+echo '***                                                                          ***'
+echo '--------------------------------------------------------------------------------'
+exit 0
+echo 
